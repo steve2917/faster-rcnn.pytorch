@@ -219,7 +219,7 @@ __C.RESNET.MAX_POOL = False
 
 # Number of fixed blocks during training, by default the first of all 4 blocks is fixed
 # Range: 0 (none) to 3 (all)
-__C.RESNET.FIXED_BLOCKS = 1
+__C.RESNET.FIXED_BLOCKS = 3
 
 #
 # MobileNet options
@@ -289,7 +289,7 @@ __C.POOLING_SIZE = 7
 __C.MAX_NUM_GT_BOXES = 20
 
 # Anchor scales for RPN
-__C.ANCHOR_SCALES = [8,16,32]
+__C.ANCHOR_SCALES = [4,8,16,32]
 
 # Anchor ratios for RPN
 __C.ANCHOR_RATIOS = [0.5,1,2]

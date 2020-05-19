@@ -165,12 +165,21 @@ if __name__ == '__main__':
   load_name = os.path.join(input_dir,
     'faster_rcnn_{}_{}_{}.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
 
-  pascal_classes = np.asarray(['__background__',
-                       'aeroplane', 'bicycle', 'bird', 'boat',
-                       'bottle', 'bus', 'car', 'cat', 'chair',
-                       'cow', 'diningtable', 'dog', 'horse',
-                       'motorbike', 'person', 'pottedplant',
-                       'sheep', 'sofa', 'train', 'tvmonitor'])
+ # pascal_classes = np.asarray(['__background__',
+ #                      'aeroplane', 'bicycle', 'bird', 'boat',
+ #                      'bottle', 'bus', 'car', 'cat', 'chair',
+ #                      'cow', 'diningtable', 'dog', 'horse',
+ #                      'motorbike', 'person', 'pottedplant',
+ #                      'sheep', 'sofa', 'train', 'tvmonitor'])
+
+  pascal_classes = np.asarray(['__background__', 'plane', 'baseball-diamond',
+   'bridge', 'ground-track-field',
+   'small-vehicle', 'large-vehicle',
+   'ship', 'tennis-court',
+   'basketball-court', 'storage-tank',
+   'soccer-ball-field', 'roundabout',
+   'harbor', 'swimming-pool',
+   'helicopter', 'container-crane'])
 
   # initilize the network here.
   if args.net == 'vgg16':
@@ -217,10 +226,11 @@ if __name__ == '__main__':
     gt_boxes = gt_boxes.cuda()
 
   # make variable
-  im_data = Variable(im_data, volatile=True)
-  im_info = Variable(im_info, volatile=True)
-  num_boxes = Variable(num_boxes, volatile=True)
-  gt_boxes = Variable(gt_boxes, volatile=True)
+  with torch.no_grad():
+    im_data = Variable(im_data)
+    im_info = Variable(im_info)
+    num_boxes = Variable(num_boxes)
+    gt_boxes = Variable(gt_boxes)
 
   if args.cuda > 0:
     cfg.CUDA = True

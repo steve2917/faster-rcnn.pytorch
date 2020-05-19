@@ -67,6 +67,9 @@ torch/version.py
 
 # IPython notebook checkpoints
 .ipynb_checkpoints
+images/
+models/
+*.pth
 
 # Editor temporaries
 *.swn

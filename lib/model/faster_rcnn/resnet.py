@@ -258,6 +258,7 @@ class resnet(_fasterRCNN):
     if cfg.RESNET.FIXED_BLOCKS >= 1:
       for p in self.RCNN_base[4].parameters(): p.requires_grad=False
 
+
     def set_bn_fix(m):
       classname = m.__class__.__name__
       if classname.find('BatchNorm') != -1:
