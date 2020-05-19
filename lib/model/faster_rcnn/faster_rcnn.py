@@ -32,6 +32,9 @@ class _fasterRCNN(nn.Module):
 
         # define rpn
         self.RCNN_rpn = _RPN(self.dout_base_model)
+        for param in self.RCNN_rpn.parameters():
+            param.requires_grad = False
+
         self.RCNN_proposal_target = _ProposalTargetLayer(self.n_classes)
 
         # self.RCNN_roi_pool = _RoIPooling(cfg.POOLING_SIZE, cfg.POOLING_SIZE, 1.0/16.0)

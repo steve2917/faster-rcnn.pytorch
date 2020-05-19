@@ -280,10 +280,25 @@ if __name__ == '__main__':
     args.session = checkpoint['session']
     args.start_epoch = checkpoint['epoch']
 
-    pretrained_dict = checkpoint['model']
+    pretrained_state = checkpoint['model']
+    model_state = fasterRCNN.state_dict()
 
-    fasterRCNN.load_state_dict(checkpoint['model'])
-    optimizer.load_state_dict(checkpoint['optimizer'])
+    #pretrained_optimizer = checkpoint['optimizer']
+    #model_optimizer = optimizer.state_dict()
+
+    pretrained_state = {k: v for k, v in pretrained_state.items() if k in model_state and v.size() == model_state[k].size()}
+    #pretrained_optimizer = {k: v for k, v in pretrained_optimizer.items() if k in model_optimizer and v.size() == model_optimizer[k].size()}
+
+    model_state.update(pretrained_state)
+    #model_optimizer.update(pretrained_optimizer)
+
+    # fasterRCNN.load_state_dict(checkpoint['model'])
+    fasterRCNN.load_state_dict(model_state)
+
+
+    # optimizer.load_state_dict(checkpoint['optimizer'])
+    #optimizer.load_state_dict(model_optimizer)
+
     lr = optimizer.param_groups[0]['lr']
     if 'pooling_mode' in checkpoint.keys():
       cfg.POOLING_MODE = checkpoint['pooling_mode']
