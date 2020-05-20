@@ -44,6 +44,11 @@ class _RPN(nn.Module):
         self.rpn_loss_cls = 0
         self.rpn_loss_box = 0
 
+        # Fix RPN blocks
+        if cfg.RPN.FIXED:
+            for p in self.parameters():
+                p.requires_grad = False
+
     @staticmethod
     def reshape(x, d):
         input_shape = x.size()

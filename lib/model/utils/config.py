@@ -219,8 +219,16 @@ __C.RESNET.MAX_POOL = False
 
 # Number of fixed blocks during training, by default the first of all 4 blocks is fixed
 # Range: 0 (none) to 3 (all)
-__C.RESNET.FIXED_BLOCKS = 3
+__C.RESNET.FIXED_BLOCKS = 1
 
+
+#
+# RPN options
+#
+__C.RPN = edict()
+
+#  Whether to Freeze RPN training
+__C.RPN.FIXED = False
 #
 # MobileNet options
 #
