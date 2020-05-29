@@ -13,10 +13,21 @@ from __future__ import print_function
 __sets = {}
 from datasets.pascal_voc import pascal_voc
 from datasets.coco import coco
+from datasets.dota import dota
+from datasets.ladi import ladi
 from datasets.imagenet import imagenet
 from datasets.vg import vg
 
 import numpy as np
+# Set up dota_<split>
+for split in ['train', 'val', 'test']:
+    name = 'dota_{}'.format(split)
+    __sets[name] = (lambda split=split: dota(split))
+
+# Set up ladi <split>
+for split in ['train', 'val', 'test']:
+    name = 'ladi_{}'.format(split)
+    __sets[name] = (lambda split=split: ladi(split))
 
 # Set up voc_<year>_<split>
 for year in ['2007', '2012']:
