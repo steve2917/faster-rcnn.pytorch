@@ -182,12 +182,12 @@ class ladi(imdb):
       boxes[ix, :] = obj['clean_bbox']
       gt_classes[ix] = cls
       seg_areas[ix] = obj['area']
-      if obj['iscrowd']:
+#      if obj['iscrowd']:
         # Set overlap to -1 for all classes for crowd objects
         # so they will be excluded during training
-        overlaps[ix, :] = -1.0
-      else:
-        overlaps[ix, cls] = 1.0
+#        overlaps[ix, :] = -1.0
+#      else:
+      overlaps[ix, cls] = 1.0
 
     ds_utils.validate_boxes(boxes, width=width, height=height)
     overlaps = scipy.sparse.csr_matrix(overlaps)

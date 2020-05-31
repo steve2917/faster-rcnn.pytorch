@@ -172,14 +172,27 @@ if __name__ == '__main__':
  #                      'motorbike', 'person', 'pottedplant',
  #                      'sheep', 'sofa', 'train', 'tvmonitor'])
 
-  pascal_classes = np.asarray(['__background__', 'plane', 'baseball-diamond',
-   'bridge', 'ground-track-field',
-   'small-vehicle', 'large-vehicle',
-   'ship', 'tennis-court',
-   'basketball-court', 'storage-tank',
-   'soccer-ball-field', 'roundabout',
-   'harbor', 'swimming-pool',
-   'helicopter', 'container-crane'])
+  #pascal_classes = np.asarray(['__background__', 'plane', 'baseball-diamond',
+  # 'bridge', 'ground-track-field',
+  # 'small-vehicle', 'large-vehicle',
+  # 'ship', 'tennis-court',
+  # 'basketball-court', 'storage-tank',
+  # 'soccer-ball-field', 'roundabout',
+  # 'harbor', 'swimming-pool',
+  # 'helicopter', 'container-crane'])
+
+  pascal_classes = np.asarray(['__background__', 'Pipe', 'Car',
+  'Highway', 'Aircraft',
+  'Building', 'Railway',
+  'Rooftop', 'Train',
+  'Buildings_block', 'Dam / levee',
+  'Bridge', 'Power_line',
+  'Boat', 'Dock',
+  'Road', 'Container_building',
+  'Communication_tower', 'Truck',
+  'Airway', 'Water_tower',
+  'Parking_lot'])
+
 
   # initilize the network here.
   if args.net == 'vgg16':
