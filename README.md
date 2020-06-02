@@ -2,6 +2,39 @@
 
 ## Introduction
 
+### My Installation
+
+```
+conda create -n faster python=3.7 -y 
+conda activate faster 
+git clone https://github.com/steve2917/faster-rcnn.pytorch.git
+cd faster-rcnn.pytorch/ 
+git checkout pytorch-1.0  
+conda install pytorch=1.0.0 cudatoolkit=10.1 torchvision==0.2.1 -c pytorch 
+# conda install pytorch=1.0.0 cudatoolkit=10.0 torchvision==0.2.1 cuda100 -c pytorch
+
+pip install -r requirements.txt
+ 
+cd lib 
+python setup.py build develop 
+cd .. 
+mkdir data 
+
+cd data 
+
+git clone https://github.com/pdollar/coco.git 
+
+cd coco/PythonAPI 
+
+make 
+
+cd ../../.. 
+
+
+pip install Pillow==7.1.2 
+
+pip install scipy==1.1.0 
+```
 ### Good news! This repo supports pytorch-1.0 now!!! We borrowed some code and techniques from [maskrcnn-benchmark](https://github.com/facebookresearch/maskrcnn-benchmark).
 
 This project is a *faster* pytorch implementation of faster R-CNN, aimed to accelerating the training of faster R-CNN object detection models. Recently, there are a number of good implementations:
