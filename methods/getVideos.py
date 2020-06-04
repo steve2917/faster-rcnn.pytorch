@@ -1,0 +1,1 @@
+# wget --user=tv20 --password='TvDsDi$$' –level=0 -r -E -ignore-length -x -k -p -np -N https://ir.nist.gov/trecvid.dsdi/dsdi.2020.testing.shots/

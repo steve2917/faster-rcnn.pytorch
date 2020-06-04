@@ -1,0 +1,88 @@
+{
+ "categories": [
+  {
+   "id": 0,
+   "name": "Pipe"
+  },
+  {
+   "id": 1,
+   "name": "Car"
+  },
+  {
+   "id": 2,
+   "name": "Highway"
+  },
+  {
+   "id": 3,
+   "name": "Aircraft"
+  },
+  {
+   "id": 4,
+   "name": "Building"
+  },
+  {
+   "id": 5,
+   "name": "Railway"
+  },
+  {
+   "id": 6,
+   "name": "Rooftop"
+  },
+  {
+   "id": 7,
+   "name": "Train"
+  },
+  {
+   "id": 8,
+   "name": "Buildings_block"
+  },
+  {
+   "id": 9,
+   "name": "Dam / levee"
+  },
+  {
+   "id": 10,
+   "name": "Bridge"
+  },
+  {
+   "id": 11,
+   "name": "Power_line"
+  },
+  {
+   "id": 12,
+   "name": "Boat"
+  },
+  {
+   "id": 13,
+   "name": "Dock"
+  },
+  {
+   "id": 14,
+   "name": "Road"
+  },
+  {
+   "id": 15,
+   "name": "Container_building"
+  },
+  {
+   "id": 16,
+   "name": "Communication_tower"
+  },
+  {
+   "id": 17,
+   "name": "Truck"
+  },
+  {
+   "id": 18,
+   "name": "Airway"
+  },
+  {
+   "id": 19,
+   "name": "Water_tower"
+  },
+  {
+   "id": 20,
+   "name": "Parking_lot"
+  }
+ ]
+}

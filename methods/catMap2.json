@@ -1,0 +1,23 @@
+{
+ "Pipe": 0,
+ "Car": 1,
+ "Highway": 2,
+ "Aircraft": 3,
+ "Building": 4,
+ "Railway": 5,
+ "Rooftop": 6,
+ "Train": 7,
+ "Buildings_block": 8,
+ "Dam": 9,
+ "Bridge": 10,
+ "Power_line": 11,
+ "Boat": 12,
+ "Dock": 13,
+ "Road": 14,
+ "Container_building": 15,
+ "Communication_tower": 16,
+ "Truck": 17,
+ "Airway": 18,
+ "Water_tower": 19,
+ "Parking_lot": 20
+}
