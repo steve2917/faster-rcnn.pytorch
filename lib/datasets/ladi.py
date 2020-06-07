@@ -127,11 +127,11 @@ class ladi(imdb):
     This function loads/saves from/to a cache file to speed up future calls.
     """
     cache_file = osp.join(self.cache_path, self.name + '_gt_roidb.pkl')
-    if osp.exists(cache_file):
-      with open(cache_file, 'rb') as fid:
-        roidb = pickle.load(fid)
-      print('{} gt roidb loaded from {}'.format(self.name, cache_file))
-      return roidb
+    # if osp.exists(cache_file):
+    #   with open(cache_file, 'rb') as fid:
+    #     roidb = pickle.load(fid)
+    #   print('{} gt roidb loaded from {}'.format(self.name, cache_file))
+    #   return roidb
 
     gt_roidb = [self._load_coco_annotation(index)
                 for index in self._image_index]
@@ -182,12 +182,16 @@ class ladi(imdb):
       boxes[ix, :] = obj['clean_bbox']
       gt_classes[ix] = cls
       seg_areas[ix] = obj['area']
-#      if obj['iscrowd']:
+
+
+      if obj['iscrowd']:
         # Set overlap to -1 for all classes for crowd objects
         # so they will be excluded during training
 #        overlaps[ix, :] = -1.0
 #      else:
       overlaps[ix, cls] = 1.0
+
+
 
     ds_utils.validate_boxes(boxes, width=width, height=height)
     overlaps = scipy.sparse.csr_matrix(overlaps)
@@ -315,7 +319,6 @@ class ladi(imdb):
   def evaluate_detections(self, all_boxes, output_dir):
     res_file = osp.join(output_dir, ('detections_' +
                                      self._image_set +
-                                     self._year +
                                      '_results'))
     if self.config['use_salt']:
       res_file += '_{}'.format(str(uuid.uuid4()))
