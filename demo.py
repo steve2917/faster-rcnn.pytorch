@@ -184,10 +184,10 @@ if __name__ == '__main__':
   pascal_classes = np.asarray(['__background__', 'Pipe', 'Car',
    'Highway', 'Aircraft',
    'Building', 'Railway',
-   'ship', 'tennis-court',
    'Rooftop', 'Train',
    'Buildings_block', 'Dam / levee',
-   'Bridge', 'Dock',
+   'Bridge', 'Power_line',
+   'Boat', 'Dock',
    'Road', 'Container_building',
    'Communication_tower', 'Truck', 'Airway',
    'Water_tower', 'Parking_lot'])
