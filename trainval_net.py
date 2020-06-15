@@ -297,8 +297,8 @@ if __name__ == '__main__':
 
     model_state.update(pretrained_state)
 
-    fasterRCNN.load_state_dict(checkpoint['model'])
-    #fasterRCNN.load_state_dict(model_state)
+    #fasterRCNN.load_state_dict(checkpoint['model'])
+    fasterRCNN.load_state_dict(model_state)
 
 
     #optimizer.load_state_dict(checkpoint['optimizer'])

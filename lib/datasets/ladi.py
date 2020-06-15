@@ -187,9 +187,9 @@ class ladi(imdb):
       if obj['iscrowd']:
         # Set overlap to -1 for all classes for crowd objects
         # so they will be excluded during training
-        overlaps[ix, :] = -1.0
-      else:
-        overlaps[ix, cls] = 1.0
+#        overlaps[ix, :] = -1.0
+#      else:
+      overlaps[ix, cls] = 1.0
 
 
 
