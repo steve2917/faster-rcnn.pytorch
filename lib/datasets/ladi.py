@@ -300,7 +300,7 @@ class ladi(imdb):
           'score': scores[k]} for k in range(dets.shape[0])])
     return results
 
-  def _write_coco_results_file(self, all_boxes, res_file):
+  def _write_ladi_results_file(self, all_boxes, res_file):
     # [{"image_id": 42,
     #   "category_id": 18,
     #   "bbox": [258.15,41.29,348.26,243.78],
