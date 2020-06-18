@@ -344,7 +344,8 @@ def inference_image(_index, _image, fasterRCNN):
 
     annotations = Annotations()
     for j in xrange(1, len(pascal_classes)):
-       inds = torch.nonzero(scores[:, j] > thresh).view(-1)
+       #inds = torch.nonzero(scores[:, j] > thresh).view(-1)
+       inds = torch.nonzero(scores[:, j]).view(-1)
        # if there is det
        if inds.numel() > 0:
             cls_scores = scores[:, j][inds]
@@ -361,8 +362,8 @@ def inference_image(_index, _image, fasterRCNN):
             keep = nms(cls_boxes[order, :], cls_scores[order], cfg.TEST.NMS)
             cls_dets = cls_dets[keep.view(-1).long()]
             if vis:
-                im2show = vis_detections(im2show, pascal_classes[j], cls_dets.cpu().numpy(), 0.5)
-                tempAnnotations = Annotations()
+                #im2show = vis_detections(im2show, pascal_classes[j], cls_dets.cpu().numpy(), 0.5)
+                #tempAnnotations = Annotations()
                 tempAnnotations = export_detections(_index, im2show, j, cls_dets.cpu().numpy(), 0.5)
                 annotations.extend(tempAnnotations)
 
