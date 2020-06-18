@@ -1,9 +1,13 @@
 import json
+import inference
+import os
+import cv2
 
 CLASSES = ['Pipe', 'Car', 'Highway', 'Aircraft', 'Building', 'Railway', 'Rooftop', 'Train', 'Buildings_block',
            'Dam / levee', 'Bridge', 'Power_line', 'Boat', 'Dock', 'Road', 'Container_building',
            'Communication_tower', 'Truck', 'Airway', 'Water_tower', 'Parking_lot']
-
+#IMAGE_FOLDER = 'images/'
+IMAGE_FOLDER = 'data/ladi/images/train/'
 
 ###############################################################
 #class Info
@@ -55,6 +59,13 @@ class Image:
         self.path = "Path_to_be_replaced"
         self.id = 1
 
+    def fromFileName(self, index,  fileName):
+        image = cv2.imread(os.path.join(IMAGE_FOLDER, fileName))
+        self.file_name = fileName
+        self.height = image.shape[0]
+        self.width = image.shape[1]
+        self.id = index
+
 
          #
          # "file_name": "ae47c54ea5ae216488fba19144f6db8f0b19c33e.jpg",
@@ -62,6 +73,55 @@ class Image:
          # "width": 1024,
          # "path": "Path_to_be_replaced",
          # "id": 0
+##################################################################
+#class Images
+class Images(list):
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent='\t')
+
+
+##############################################################
+#class Annotation
+class Annotation:
+    def __init__(self):
+        self.image_id = -1
+        self.category_id = -1
+        self.id = -1
+        self.bbox = []
+        self.area = -1
+        self.iscrowd = 0
+        self.segmentation = []
+        self.score = 0
+
+    def setId(self, id):
+        self.id = id
+
+        # "image_id": 0,
+        # "category_id": 4,
+        # "id": 0,
+        # "bbox": [
+        #     33,
+        #     183,
+        #     163,
+        #     78
+        # ],
+        # "area": 12714,
+        # "iscrowd": 0,
+        # "segmentation": []
+
+class Annotations(list):
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent='\t')
+
+    def printAnnotations(self):
+        print("------------------------------")
+        print("categories:", self.toJSON())
+
+    def fixIds(self):
+        for index in range(len(self)):
+            self[index].setId(index)
+
+
 
 
 ################################################################
@@ -95,9 +155,29 @@ if __name__ == '__main__':
 
     categories = Categories()
     categories.fromList(CLASSES)
-    categories.printCategories()
+
+    img_set = os.listdir(IMAGE_FOLDER)
+
+    images = Images()
+    annotations = Annotations()
+
+    model = inference.create_model()
+    img_id = 0
+    for image_file_name in img_set:
+        image = Image()
+        tempAnnotation = inference.inference_image(img_id, image_file_name, model)
+        image.fromFileName(img_id, image_file_name)
+        images.append(image)
+        annotations.extend(tempAnnotation)
+        img_id += 1
+
+
+    #annotations = inference.inference_image('0d03b6d82a35626743587f549cf11f4619336d10.jpg')
+    annotations.fixIds()
 
     dataset = Dataset()
     dataset.info = info
     dataset.categories = categories
+    dataset.images = images
+    dataset.annotations = annotations
     dataset.save2JSON()
