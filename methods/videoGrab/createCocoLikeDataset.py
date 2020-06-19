@@ -27,16 +27,16 @@ def findBBOX(poly):
 
 paths=['/home/staurid/Desktop/treckVid/outputs_180_Manos/','/home/staurid/Desktop/treckVid/outputs_181_kwstas/','/home/staurid/Desktop/treckVid/outputs1','/home/staurid/Desktop/treckVid/outputs']
 
-with open('DictConvert2.json','r') as fp:
+with open('DictConvert2.json', 'r') as fp:
     catoldMap=json.load(fp)
 
-with open('catMap2.json','r') as fp:
+with open('catMap2.json', 'r') as fp:
     catMap=json.load(fp)
 
-with open('info.json','r') as fp:
+with open('info.json', 'r') as fp:
     info=json.load(fp)
 
-with open('catFile2.json','r') as fp:
+with open('catFile2.json', 'r') as fp:
     catFile=json.load(fp)
 
 

@@ -3,13 +3,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 import numpy as np
-import torchvision.models as models
 from model.utils.config import cfg
 import cv2
-import pdb
-import random
 
-#from tojson import Annotation, Annotations
+import methods.jsonExport.entities as entities
+
 
 def save_net(fname, net):
     import h5py
@@ -61,7 +59,7 @@ def vis_detections(im, class_name, dets, thresh=0.8):
     return im
 
 def export_detections(_index, im, class_id, dets, thresh=0.8):
-    annotations = Annotations()
+    annotations = entities.Annotations()
     """Visual debugging of detections."""
     for i in range(np.minimum(20, dets.shape[0])):
         bbox = tuple(int(np.round(x)) for x in dets[i, :4])
@@ -72,7 +70,7 @@ def export_detections(_index, im, class_id, dets, thresh=0.8):
         bbox_coco.append(bbox[3] - bbox[1])
         score = dets[i, -1]
         if score > thresh:
-            tempAnnotaion = Annotation()
+            tempAnnotaion = entities.Annotation()
             tempAnnotaion.bbox = bbox_coco
             tempAnnotaion.score = float(score)
             tempAnnotaion.category_id = class_id
