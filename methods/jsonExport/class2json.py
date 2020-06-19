@@ -12,7 +12,7 @@ def image_cls_prob(scores_array):
         # Find index of maximum value from 2D numpy array
         result = np.where(arr2D == maxValue)
 
-        return maxValue, int(result[0]), int(result[1])
+        return maxValue, int(result[0][0]), int(result[1][0])
 
     #convert to numpy array
     #removes first dimension (batch dimension)

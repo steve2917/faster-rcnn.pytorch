@@ -81,7 +81,7 @@ def _get_image_blob(im):
 
     return blob, np.array(im_scale_factors)
 
-#########################################
+#################################################################
 #return fasterRCNN
 def create_model():
     print('Reading args...')
@@ -134,6 +134,7 @@ def create_model():
 
     return fasterRCNN
 
+#################################################################
 def initilaization():
     # initilize the tensor holder here.
     im_data = torch.FloatTensor(1)
@@ -157,6 +158,7 @@ def initilaization():
 
     return im_data, im_info, num_boxes, gt_boxes
 
+#################################################################
 def inference_image(_index, _image, fasterRCNN):
     if _index % 100 == 0:
         print(_index)
@@ -272,6 +274,7 @@ def inference_image(_index, _image, fasterRCNN):
 
     return annotations
 
+#################################################################
 def class_scores(_index, _image, fasterRCNN):
     if _index % 100 == 0:
         print(_index)
