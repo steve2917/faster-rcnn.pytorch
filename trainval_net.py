@@ -30,10 +30,8 @@ from model.utils.config import cfg, cfg_from_file, cfg_from_list, get_output_dir
 from model.utils.net_utils import weights_normal_init, save_net, load_net, \
     adjust_learning_rate, save_checkpoint, clip_gradient
 
-from model.rpn.bbox_transform import bbox_transform_inv, clip_boxes
 from model.faster_rcnn.vgg16 import vgg16
 from model.faster_rcnn.resnet import resnet
-from classifier.headNet import HeadNet
 
 
 def parse_args():
@@ -325,8 +323,7 @@ if __name__ == '__main__':
 
     for epoch in range(args.start_epoch, args.max_epochs + 1):
         # setting to train mode
-        # fasterRCNN.train()
-        fasterRCNN.eval()
+        fasterRCNN.train()
         loss_temp = 0
         start = time.time()
 
@@ -347,30 +344,7 @@ if __name__ == '__main__':
             rois, cls_prob, bbox_pred, \
             rpn_loss_cls, rpn_loss_box, \
             RCNN_loss_cls, RCNN_loss_bbox, \
-            rois_label, base_feat = fasterRCNN(im_data, im_info, gt_boxes, num_boxes)
-
-            scores = cls_prob.data
-            boxes = rois.data[:, :, 1:5]
-            box_deltas = bbox_pred.data
-
-            # box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS).cuda() \
-            #              + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS).cuda()
-            #
-            # box_deltas = box_deltas.view(1, -1, 4 * len(cls_prob[0][0]))
-            pred_boxes = bbox_transform_inv(boxes, box_deltas, 1)
-            pred_boxes = clip_boxes(pred_boxes, im_info.data, 1)
-
-            bb = ((pred_boxes[0].cpu().numpy()) / 16).astype(np.int)
-
-            # Construct Mask
-            mask = base_feat.clone()[0][0] * 0
-            for i in range(len(bb)):
-                m_score = max(scores[0][i][1:])
-                if m_score > 0.5:
-                    mask[bb[i][1]:bb[i][3], bb[i][0]:bb[i][2]] += m_score
-
-            for i in range(len(base_feat[0])):
-                base_feat[0][i] = base_feat[0][i] * (1 + mask)
+            rois_label = fasterRCNN(im_data, im_info, gt_boxes, num_boxes)
 
             loss = rpn_loss_cls.mean() + rpn_loss_box.mean() \
                    + RCNN_loss_cls.mean() + RCNN_loss_bbox.mean()
