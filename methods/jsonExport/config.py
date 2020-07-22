@@ -11,7 +11,8 @@ __C.CLASSES = ['Pipe', 'Car', 'Highway', 'Aircraft', 'Building', 'Railway', 'Roo
            'Communication_tower', 'Truck', 'Airway', 'Water_tower', 'Parking_lot']
 
 #__C.IMAGE_FOLDER = 'images/'
-__C.IMAGE_FOLDER = 'data/ladi/images/train/'
+# __C.IMAGE_FOLDER = 'data/ladi/images/train/'
+__C.IMAGE_FOLDER = 'data/ladi/extracted_images/'
 
 __C.OUTPUT_FOLDER = ''
 

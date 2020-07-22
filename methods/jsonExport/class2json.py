@@ -30,12 +30,12 @@ def image_cls_prob(scores_array):
     for row in range(class_num):
         maxValue, bbox, classe = max_cords(scores_array)
         output[classe] = float(maxValue)
-        scores_array[:,classe] = 0
+        scores_array[:, classe] = 0
         scores_array[bbox, :] = 0
     return output
 
 if __name__ == '__main__':
-    info =  entities.Info()
+    info = entities.Info()
 
     categories = entities.Categories()
     categories.fromList(localConfig.CLASSES)

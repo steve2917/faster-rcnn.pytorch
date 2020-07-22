@@ -372,6 +372,10 @@ if __name__ == '__main__':
             for i in range(len(base_feat[0])):
                 base_feat[0][i] = base_feat[0][i] * (1 + mask)
 
+            # headNet = HeadNet(31)
+            # headNet.to("cuda:0")
+            # output = headNet(base_feat)
+
             loss = rpn_loss_cls.mean() + rpn_loss_box.mean() \
                    + RCNN_loss_cls.mean() + RCNN_loss_bbox.mean()
             loss_temp += loss.item()

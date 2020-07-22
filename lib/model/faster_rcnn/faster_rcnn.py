@@ -76,7 +76,7 @@ class _fasterRCNN(nn.Module):
         if cfg.POOLING_MODE == 'align':
             pooled_feat = self.RCNN_roi_align(base_feat, rois.view(-1, 5))
         elif cfg.POOLING_MODE == 'pool':
-            pooled_feat = self.RCNN_roi_pool(base_feat, rois.view(-1,5))
+            pooled_feat = self.RCNN_roi_pool(base_feat, rois.view(-1, 5))
 
         # feed pooled features to top model
         pooled_feat = self._head_to_tail(pooled_feat)
@@ -107,7 +107,7 @@ class _fasterRCNN(nn.Module):
         cls_prob = cls_prob.view(batch_size, rois.size(1), -1)
         bbox_pred = bbox_pred.view(batch_size, rois.size(1), -1)
 
-        return rois, cls_prob, bbox_pred, rpn_loss_cls, rpn_loss_bbox, RCNN_loss_cls, RCNN_loss_bbox, rois_label
+        return rois, cls_prob, bbox_pred, rpn_loss_cls, rpn_loss_bbox, RCNN_loss_cls, RCNN_loss_bbox, rois_label, base_feat
 
     def _init_weights(self):
         def normal_init(m, mean, stddev, truncated=False):

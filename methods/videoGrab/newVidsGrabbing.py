@@ -2,9 +2,9 @@ import cv2
 import os
 import json
 
-from skimage import io
-from skimage.transform import resize
-import tarfile
+# from skimage import io
+# from skimage.transform import resize
+# import tarfile
 
 # def readJSON(filename):
 #     with open(filename, 'r') as f:
@@ -56,7 +56,7 @@ def exportFrames(_video, _frame_space, _writeDirectory, _filename):
 
 def getVideoList(_readDirectory, _ext):
     _files = []
-    for _file in os.listdir(readDirectory):
+    for _file in os.listdir(_readDirectory):
         _split = _file.split('.')
         if len(_split) > 1 and _split[1] == _ext:
             _files.append(_file)

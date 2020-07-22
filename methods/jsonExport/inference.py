@@ -274,7 +274,6 @@ def inference_image(_index, _image, fasterRCNN):
 
     return annotations
 
-#################################################################
 def class_scores(_index, _image, fasterRCNN):
     if _index % 100 == 0:
         print(_index)

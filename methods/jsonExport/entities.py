@@ -138,7 +138,7 @@ class Dataset:
 
 
     def save2JSON(self):
-        with open(os.path.join(localConfig.OUTPUT_FOLDER, 'results_output_ladi.json'), 'w') as outfile:
+        with open(os.path.join(localConfig.OUTPUT_FOLDER, 'results_output_ladi2.json'), 'w') as outfile:
             json.dump(self, outfile, default=lambda o: o.__dict__, sort_keys=False, indent='\t')
             print("json file saved successfully...")
 
