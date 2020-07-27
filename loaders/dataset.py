@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset
 from PIL import Image
 import numpy as np
-
+# from classifier.rcnn_base import FasterRCNN_attention
 
 class LadiDataset(Dataset):
     # Characterizes a dataset for PyTorch
@@ -33,9 +33,39 @@ class LadiDataset(Dataset):
 
         return X, y
 
+class CascadeDataset(Dataset):
+    # Characterizes a dataset for PyTorch
+    def __init__(self, list_IDs, labels, transforms=None):
+        # ' Initialization'
+        self.labels = labels
+        self.list_IDs = list_IDs
+        self.transforms = transforms
+
+    def __len__(self):
+        # ' Denotes the total number of samples '
+        return len(self.list_IDs[0])
+
+    def __getitem__(self, index):
+        'Generates one sample of data'
+        # Select sample
+        X = []
+        y = []
+        f_infrastructure, f_vehicle = [], []
+        for _taskID in range(len(self.list_IDs)):
+            uuid = self.list_IDs[_taskID][index]
+            im_file = './data/ladi/images/train/' + uuid + '.jpg'
+            # _X = FasterRCNN_attention(im_file)
+            X.append(im_file)
+
+            _y = self.labels[_taskID][uuid]
+            _y = np.array(_y, dtype=np.float32)
+            _y = torch.from_numpy(_y)
+            y.append(_y)
+
+        return X, y, f_infrastructure, f_vehicle
+
 class LadiDatasetMultiInput(Dataset):
     # Characterizes a dataset for PyTorch
-
     def __init__(self, list_IDs, labels, faster=None, features=None, transforms=None):
         # ' Initialization'
         self.labels = labels
@@ -56,15 +86,11 @@ class LadiDatasetMultiInput(Dataset):
         f_infrastructure, f_vehicle = [], []
         for _taskID in range(len(self.list_IDs)):
             uuid = self.list_IDs[_taskID][index]
-            im_file = './data/ladi/images/train/' + uuid + '.jpg'
-            # _X = Image.open('./data/ladi/images/train/' + uuid + '.jpg')
-            # _X = self.transforms(_X)
-            # _X = np.array(_X)
-            # _X = torch.from_numpy(_X)
-            # X.append(_X)
-
-            X.append(im_file)
-
+            _X = Image.open('./data/ladi/images/train/' + uuid + '.jpg')
+            _X = self.transforms(_X)
+            _X = np.array(_X)
+            _X = torch.from_numpy(_X)
+            X.append(_X)
 
             if self.faster:
                 _f = self.faster[uuid]
