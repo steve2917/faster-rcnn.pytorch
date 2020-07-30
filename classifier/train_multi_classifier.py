@@ -38,7 +38,7 @@ from model.faster_rcnn.resnet import resnet
 import pdb
 import classifier.methods_classifier as mth
 from loaders.dataset import LadiDataset
-from classifier.classifier_net import HeadNet
+from classifier.multitask_classifier_net import HeadNet
 from tqdm import tqdm
 import math
 from sklearn.metrics import multilabel_confusion_matrix, average_precision_score

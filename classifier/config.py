@@ -146,7 +146,7 @@ def filePath(_prefix):
 __C.MULTI_TASK_TEST.CATEGORY = 'aggregate'
 
 # Folders and Files
-__C.MULTI_TASK_TEST.PATH_TO_ROOT = '../'
+__C.MULTI_TASK_TEST.PATH_TO_ROOT = './'
 __C.MULTI_TASK_TEST.TASKS_FOLDER = os.path.join(__C.MULTI_TASK_TEST.PATH_TO_ROOT, __C.TASKS_FOLDER)
 
 __C.MULTI_TASK_TEST.MODEL_FOLDER = os.path.join(

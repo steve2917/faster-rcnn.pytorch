@@ -65,11 +65,16 @@ class ResNet(nn.Module):
 class HeadNet(nn.Module):
     def __init__(self, numClasses):
         super(HeadNet, self).__init__()
-        # self.fc = nn.Linear(2048, numClasses)
-        self.fc = nn.Linear(200704, numClasses)
+        resnet_model = models.resnet101(pretrained=False, num_classes=numClasses)
+
+        self.layer4 = resnet_model.layer4
+        self.avgpool = resnet_model.avgpool
+        self.fc = nn.Linear(2048, numClasses)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
+        x = self.layer4(x)
+        x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         x = self.sigmoid(x)

@@ -1,7 +1,7 @@
 import torch
 import os
 from loaders.dataset import LadiDatasetMultiInput
-from classifier.classifier_net import ResNet, HeadNet
+from classifier.multitask_classifier_net import ResNet, HeadNet
 import classifier.methods_classifier as mth
 from torchvision import transforms
 import torch.nn as nn

@@ -34,7 +34,7 @@ import pdb
 # from loaders.dataset import LadiDatasetMultiInput
 from tqdm import tqdm
 import math
-from classifier.classifier_net import HeadNet
+from classifier.multitask_classifier_net import HeadNet
 from classifier.config import multi_task_train_cfg as conf_local
 import classifier.methods_classifier as mth
 
@@ -165,18 +165,7 @@ def _createFasterRCNN(args):
                                  'Water_tower', 'Parking_lot'])
 
     # initilize the network here.
-    # if args.net == 'vgg16':
-    #     fasterRCNN = vgg16(pascal_classes, pretrained=False, class_agnostic=args.class_agnostic)
-    # elif args.net == 'res101':
-    #     fasterRCNN = resnet(pascal_classes, 101, pretrained=False, class_agnostic=args.class_agnostic)
     fasterRCNN = resnet(pascal_classes, 101, pretrained=False, class_agnostic=args.class_agnostic)
-    # elif args.net == 'res50':
-    #     fasterRCNN = resnet(pascal_classes, 50, pretrained=False, class_agnostic=args.class_agnostic)
-    # elif args.net == 'res152':
-    #     fasterRCNN = resnet(pascal_classes, 152, pretrained=False, class_agnostic=args.class_agnostic)
-    # else:
-    #     print("network is not defined")
-    #     pdb.set_trace()
 
     fasterRCNN.create_architecture()
 
@@ -229,7 +218,7 @@ def _initializeFasterRCNN(args, fasterRCNN):
 
 
 def _prepareImage(im_file, im_data, im_info, gt_boxes, num_boxes ):
-    im_in = np.array(imread(im_file[0]))
+    im_in = np.array(imread(im_file))
     if len(im_in.shape) == 2:
         im_in = im_in[:, :, np.newaxis]
         im_in = np.concatenate((im_in, im_in, im_in), axis=2)
@@ -254,66 +243,183 @@ def _prepareImage(im_file, im_data, im_info, gt_boxes, num_boxes ):
     return im_data, im_info, gt_boxes, num_boxes, im_scales
 
 
+def _createMask(args, im_file, im_data, im_info, gt_boxes, num_boxes, pascal_classes, fasterRCNN):
+    first_image_flag = True
+    _masklist = []
+    for i in range(len(im_file)):
+        im_data, im_info, gt_boxes, num_boxes, im_scales = _prepareImage(im_file[i], im_data, im_info, gt_boxes,
+                                                                         num_boxes)
+        # train set
+        # -- Note: Use validation set and disable the flipped to enable faster loading.
+        rois, cls_prob, bbox_pred, \
+        rpn_loss_cls, rpn_loss_box, \
+        RCNN_loss_cls, RCNN_loss_bbox, \
+        rois_label, base_feat = fasterRCNN(im_data, im_info, gt_boxes, num_boxes)
+
+        scores = cls_prob.data
+        boxes = rois.data[:, :, 1:5]
+
+        if cfg.TEST.BBOX_REG:
+            # Apply bounding-box regression deltas
+            box_deltas = bbox_pred.data
+            if cfg.TRAIN.BBOX_NORMALIZE_TARGETS_PRECOMPUTED:
+                # Optionally normalize targets by a precomputed mean and stdev
+                if args.class_agnostic:
+                    if args.cuda > 0:
+                        box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS).cuda() \
+                                     + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS).cuda()
+                    else:
+                        box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS) \
+                                     + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS)
+
+                    box_deltas = box_deltas.view(1, -1, 4)
+                else:
+                    if args.cuda > 0:
+                        box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS).cuda() \
+                                     + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS).cuda()
+                    else:
+                        box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS) \
+                                     + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS)
+                    box_deltas = box_deltas.view(1, -1, 4 * len(pascal_classes))
+
+            pred_boxes = bbox_transform_inv(boxes, box_deltas, 1)
+            pred_boxes = clip_boxes(pred_boxes, im_info.data, 1)
+        else:
+            # Simply repeat the boxes, once for each class
+            pred_boxes = np.tile(boxes, (1, scores.shape[1]))
+
+        # pred_boxes /= im_scales[0]
+        bb = ((pred_boxes[0].cpu().numpy()) / 16).astype(np.int)
+
+        # Construct Mask
+        mask = base_feat.clone()[0][0] * 0
+        for i in range(len(bb)):
+            m_score = max(scores[0][i][1:])
+            if m_score > 0.5:
+                mask[bb[i][1]:bb[i][3], bb[i][0]:bb[i][2]] += m_score
+
+        a = mask.max()
+        if a != 0:
+            mask = mask / a
+
+        # _base_feat = _base_feat + base_feat
+
+
+        _masklist.append(mask)
+
+        # if first_image_flag:
+        #     # _base_feat = base_feat
+        #     # _pred_boxes = pred_boxes
+        #     # _bb = bb
+        #     # _scores = scores
+        #     masks = mask
+        #     first_image_flag = False
+        #
+        # else:
+        #     # _base_feat = torch.cat((_base_feat, base_feat), 0)
+        #     masks = torch.stack([masks, mask], 0)
+        #     a=1
+        #     # _pred_boxes = torch.cat((_pred_boxes, pred_boxes), 0)
+        #     # _bb = torch.cat((_bb, bb), 0)
+        #     # np.append(_bb, bb, axis=0)
+        #     # _bb.append(bb)
+        #     # _scores = torch.cat((_scores, scores), 0)
+
+        # _pred_boxes = _pred_boxes + pred_boxes
+        # _bb = _bb + bb
+        # _scores = _scores + scores
+
+    masks = torch.stack(_masklist, 0)
+
+    # return mask, _pred_boxes, _bb, _scores
+    return masks
+
 def _inferenceFasterRCNN(args, im_file, im_data, im_info, gt_boxes, num_boxes, pascal_classes, fasterRCNN):
+    first_image_flag = True
 
-    im_data, im_info, gt_boxes, num_boxes, im_scales = _prepareImage(im_file, im_data, im_info, gt_boxes, num_boxes)
-    # train set
-    # -- Note: Use validation set and disable the flipped to enable faster loading.
-    rois, cls_prob, bbox_pred, \
-    rpn_loss_cls, rpn_loss_box, \
-    RCNN_loss_cls, RCNN_loss_bbox, \
-    rois_label, base_feat = fasterRCNN(im_data, im_info, gt_boxes, num_boxes)
+    for i in range(len(im_file)):
+        im_data, im_info, gt_boxes, num_boxes, im_scales = _prepareImage(im_file[i], im_data, im_info, gt_boxes, num_boxes)
+        # train set
+        # -- Note: Use validation set and disable the flipped to enable faster loading.
+        rois, cls_prob, bbox_pred, \
+        rpn_loss_cls, rpn_loss_box, \
+        RCNN_loss_cls, RCNN_loss_bbox, \
+        rois_label, base_feat = fasterRCNN(im_data, im_info, gt_boxes, num_boxes)
 
-    scores = cls_prob.data
-    boxes = rois.data[:, :, 1:5]
+        scores = cls_prob.data
+        boxes = rois.data[:, :, 1:5]
 
-    if cfg.TEST.BBOX_REG:
-        # Apply bounding-box regression deltas
-        box_deltas = bbox_pred.data
-        if cfg.TRAIN.BBOX_NORMALIZE_TARGETS_PRECOMPUTED:
-            # Optionally normalize targets by a precomputed mean and stdev
-            if args.class_agnostic:
-                if args.cuda > 0:
-                    box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS).cuda() \
-                                 + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS).cuda()
+        if cfg.TEST.BBOX_REG:
+            # Apply bounding-box regression deltas
+            box_deltas = bbox_pred.data
+            if cfg.TRAIN.BBOX_NORMALIZE_TARGETS_PRECOMPUTED:
+                # Optionally normalize targets by a precomputed mean and stdev
+                if args.class_agnostic:
+                    if args.cuda > 0:
+                        box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS).cuda() \
+                                     + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS).cuda()
+                    else:
+                        box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS) \
+                                     + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS)
+
+                    box_deltas = box_deltas.view(1, -1, 4)
                 else:
-                    box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS) \
-                                 + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS)
+                    if args.cuda > 0:
+                        box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS).cuda() \
+                                     + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS).cuda()
+                    else:
+                        box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS) \
+                                     + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS)
+                    box_deltas = box_deltas.view(1, -1, 4 * len(pascal_classes))
 
-                box_deltas = box_deltas.view(1, -1, 4)
-            else:
-                if args.cuda > 0:
-                    box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS).cuda() \
-                                 + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS).cuda()
-                else:
-                    box_deltas = box_deltas.view(-1, 4) * torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_STDS) \
-                                 + torch.FloatTensor(cfg.TRAIN.BBOX_NORMALIZE_MEANS)
-                box_deltas = box_deltas.view(1, -1, 4 * len(pascal_classes))
+            pred_boxes = bbox_transform_inv(boxes, box_deltas, 1)
+            pred_boxes = clip_boxes(pred_boxes, im_info.data, 1)
+        else:
+            # Simply repeat the boxes, once for each class
+            pred_boxes = np.tile(boxes, (1, scores.shape[1]))
 
-        pred_boxes = bbox_transform_inv(boxes, box_deltas, 1)
-        pred_boxes = clip_boxes(pred_boxes, im_info.data, 1)
-    else:
-        # Simply repeat the boxes, once for each class
-        pred_boxes = np.tile(boxes, (1, scores.shape[1]))
+        # pred_boxes /= im_scales[0]
+        bb = ((pred_boxes[0].cpu().numpy()) / 16).astype(np.int)
 
-    # pred_boxes /= im_scales[0]
-    bb = ((pred_boxes[0].cpu().numpy()) / 16).astype(np.int)
+        # Construct Mask
+        mask = base_feat.clone()[0][0] * 0
+        for i in range(len(bb)):
+            m_score = max(scores[0][i][1:])
+            if m_score > 0.5:
+                mask[bb[i][1]:bb[i][3], bb[i][0]:bb[i][2]] += m_score
 
-    # Construct Mask
-    mask = base_feat.clone()[0][0] * 0
-    for i in range(len(bb)):
-        m_score = max(scores[0][i][1:])
-        if m_score > 0.5:
-            mask[bb[i][1]:bb[i][3], bb[i][0]:bb[i][2]] += m_score
+        a = mask.max()
+        if a != 0:
+            mask = mask / a
 
-    a = mask.max()
-    if a != 0:
-        mask = mask / a
-    # Apply Mask
-    for i in range(len(base_feat[0])):
-        base_feat[0][i] = base_feat[0][i] * (1 + mask)
+        # Apply Mask
+        # for i in range(len(base_feat[0])):
+        #     base_feat[0][i] = base_feat[0][i] * (1 + mask)
 
-    return base_feat, pred_boxes, bb, scores
+        # _base_feat = _base_feat + base_feat
+        if first_image_flag:
+            _base_feat = base_feat
+            _pred_boxes = pred_boxes
+            _bb = bb
+            _scores = scores
+            first_image_flag = False
+        else:
+            _base_feat = torch.cat((_base_feat, base_feat), 0)
+            _pred_boxes = torch.cat((_pred_boxes, pred_boxes), 0)
+            # _bb = torch.cat((_bb, bb), 0)
+            np.append(_bb, bb, axis=0)
+            # _bb.append(bb)
+            _scores = torch.cat((_scores, scores), 0)
+
+        # _pred_boxes = _pred_boxes + pred_boxes
+        # _bb = _bb + bb
+        # _scores = _scores + scores
+
+        a=2
+
+
+
+    return _base_feat, _pred_boxes, _bb, _scores
 
 
 def initFasterRCNN():

@@ -54,7 +54,6 @@ class CascadeDataset(Dataset):
         for _taskID in range(len(self.list_IDs)):
             uuid = self.list_IDs[_taskID][index]
             im_file = './data/ladi/images/train/' + uuid + '.jpg'
-            # _X = FasterRCNN_attention(im_file)
             X.append(im_file)
 
             _y = self.labels[_taskID][uuid]
@@ -63,6 +62,44 @@ class CascadeDataset(Dataset):
             y.append(_y)
 
         return X, y, f_infrastructure, f_vehicle
+
+class AttendMultiClassDataset(Dataset):
+    # Characterizes a dataset for PyTorch
+    def __init__(self, list_IDs, labels, transforms=None):
+        # ' Initialization'
+        self.labels = labels
+        self.list_IDs = list_IDs
+        self.transforms = transforms
+
+    def __len__(self):
+        # ' Denotes the total number of samples '
+        return len(self.list_IDs[0])
+
+    def __getitem__(self, index):
+        'Generates one sample of data'
+        # Select sample
+        X = []
+        y = []
+        filenames = []
+
+        for _taskID in range(len(self.list_IDs)):
+            uuid = self.list_IDs[_taskID][index]
+            filename = './data/ladi/images/train/' + uuid + '.jpg'
+            _X = Image.open(filename)
+            _X = self.transforms(_X)
+            _X = np.array(_X)
+            _X = torch.from_numpy(_X)
+            X.append(_X)
+
+
+            _y = self.labels[_taskID][uuid]
+            _y = np.array(_y, dtype=np.float32)
+            _y = torch.from_numpy(_y)
+            y.append(_y)
+
+            filenames.append(filename)
+
+        return X, y, filenames
 
 class LadiDatasetMultiInput(Dataset):
     # Characterizes a dataset for PyTorch
@@ -160,10 +197,12 @@ class LadiDatasetInference(Dataset):
         f_infrastructure, f_vehicle = [], []
 
         # X = Image.open('../data/images/' + uuid + '.jpg')
-        X = Image.open('../data/extracted_images/' + uuid + '.jpg')
+        filename = './data/extracted_images/' + uuid + '.jpg'
+        X = Image.open(filename)
         X = self.transforms(X)
         X = np.array(X)
         X = torch.from_numpy(X)
+
 
         if self.faster:
             _f = self.faster[uuid]
@@ -177,4 +216,4 @@ class LadiDatasetInference(Dataset):
             f_infrastructure = torch.from_numpy(f_infrastructure)
             f_vehicle = torch.from_numpy(f_vehicle)
 
-        return uuid, X, f_infrastructure, f_vehicle
+        return filename, uuid, X, f_infrastructure, f_vehicle

@@ -1,6 +1,9 @@
 from lxml import etree
 
+
+# ########################################################################################## #
 # Item
+# ########################################################################################## #
 class Item:
     def __init__(self, seqNum, shotId):
         self.seqNum = seqNum
@@ -12,16 +15,27 @@ class Item:
         _element.attrib["shotId"] = self.shotId
         return _element
 
+    # def fix_zeros(self, shotId):
+    #     split = shotId.split('_')
+    #     if split[1] == '000':
+    #         shotId = split[0] + '_0'
+    #     else:
+    #         split[1] = split[1].lstrip('0')
+    #         shotId = split[0] + '_' + split[1]
+    #     return shotId
+
 
 # ########################################################################################## #
 # Feature Result
+# ########################################################################################## #
 class VideoFeatureExtractionFeatureResult:
     def __init__(self, fNum="-1", elapsedTime="-1", items=[], itemNames=[]):
         self.fNum = fNum
         self.elapsedTime = elapsedTime
         self.items = items
 
-        if self.items == []:
+        if not self.items:
+        # if True:
             for _i in range(len(itemNames)):
                 _item = Item(str(_i+1), itemNames[_i])
                 self.items.append(_item)
@@ -38,6 +52,7 @@ class VideoFeatureExtractionFeatureResult:
 
 # ########################################################################################## #
 # Run Result
+# ########################################################################################## #
 class VideoFeatureExtractionRunResult:
     def __init__(self, trType, pid, priority, desc, videoFeatureExtractionFeatureResults=[]):
         self.trType = trType
@@ -59,6 +74,7 @@ class VideoFeatureExtractionRunResult:
 
 # ########################################################################################## #
 # Results
+# ########################################################################################## #
 class VideoFeatureExtractionResults:
     def __init__(self, videoFeatureExtractionRunResults=[]):
         self.videoFeatureExtractionRunResults = videoFeatureExtractionRunResults
